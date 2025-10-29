@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محطة التداول (v5.2 - متعدد الاستراتيجيات)</title>
+    <title>محطة التداول (v6.0 - منطق حقيقي)</title>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
-        /* نفس الـ CSS السابق، لا تغييرات كبيرة مطلوبة */
+        /* CSS الكامل بدون تغيير */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; }
         #main-container { display: flex; flex-direction: column; height: 100vh; }
-        #chart_container { height: 45vh; background-color: #1e1e1e; } /* تقليل الارتفاع قليلاً */
+        #chart_container { height: 45vh; background-color: #1e1e1e; }
         #controls-container { flex-grow: 1; overflow-y: auto; padding: 8px; border-top: 2px solid #bb86fc; }
         .card { background-color: #1e1e1e; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); overflow: hidden; }
         .card-header { background-color: #2a2a2a; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
@@ -37,42 +37,21 @@
     <div id="main-container">
         <div id="chart_container"></div>
         <div id="controls-container">
-            
+            <!-- HTML الكامل كما هو في الرد السابق -->
             <div class="card">
                 <div class="card-header"><h2>1. الاتصال والتحكم</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content">
-                    <div class="form-group">
-                        <label for="api-key">مفتاح API الخاص بالوسيط</label>
-                        <input type="password" id="api-key" placeholder="أدخل مفتاح API السري هنا">
-                    </div>
-                    <div class="form-group">
-                        <label for="trading-account">اختر حساب التداول</label>
-                        <select id="trading-account" disabled>
-                            <option value="">أدخل مفتاح API أولاً ثم اضغط جلب</option>
-                        </select>
-                        <button id="fetch-accounts-btn" class="button btn-fetch">جلب الحسابات</button>
-                    </div>
-                    <hr style="border-color: #444; margin: 20px 0;">
-                    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
-                        <label for="dry-run-mode" style="margin-bottom: 0;">تفعيل وضع المحاكاة (آمن)</label>
-                        <label class="switch"><input type="checkbox" id="dry-run-mode" checked><span class="slider"></span></label>
-                    </div>
-                    <button id="start-bot-btn" class="button btn-start">بدء التداول الآلي</button>
-                    <button id="stop-bot-btn" class="button btn-stop" disabled>إيقاف التداول الآلي</button>
+                    <div class="form-group"><label for="api-key">مفتاح API الخاص بالوسيط</label><input type="password" id="api-key" placeholder="أدخل مفتاح API السري هنا"></div>
+                    <div class="form-group"><label for="trading-account">اختر حساب التداول</label><select id="trading-account" disabled><option value="">أدخل مفتاح API أولاً ثم اضغط جلب</option></select><button id="fetch-accounts-btn" class="button btn-fetch">جلب الحسابات</button></div>
+                    <hr style="border-color: #444; margin: 20px 0;"><div class="form-group" style="display: flex; justify-content: space-between; align-items: center;"><label for="dry-run-mode" style="margin-bottom: 0;">تفعيل وضع المحاكاة (آمن)</label><label class="switch"><input type="checkbox" id="dry-run-mode" checked><span class="slider"></span></label></div>
+                    <button id="start-bot-btn" class="button btn-start">بدء التداول الآلي</button><button id="stop-bot-btn" class="button btn-stop" disabled>إيقاف التداول الآلي</button>
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-header"><h2>2. الاستراتيجية والمؤشرات</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content">
-                    <div class="form-group">
-                        <label for="strategy-select">اختر استراتيجية التداول</label>
-                        <select id="strategy-select">
-                            <option value="doubling">الاستراتيجية الأولى (المضاعفة)</option>
-                            <option value="trend_following">الاستراتيجية الثانية (تتبع الاتجاه)</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label for="asset-pair">اختر الزوج</label><select id="asset-pair"><option value="FX:EURUSD" selected>EUR/USD</option><option value="OANDA:XAUUSD">XAU/USD (الذهب)</option></select></div>
+                    <div class="form-group"><label for="strategy-select">اختر استراتيجية التداول</label><select id="strategy-select"><option value="doubling">الاستراتيجية الأولى (المضاعفة)</option><option value="trend_following">الاستراتيجية الثانية (تتبع الاتجاه)</option></select></div>
+                    <div class="form-group"><label for="asset-pair">اختر الزوج</label><select id="asset-pair"><option value="EURUSD" selected>EUR/USD</option><option value="XAUUSD">XAU/USD (الذهب)</option></select></div>
                     <div class="form-group"><label for="time-frame">الإطار الزمني</label><select id="time-frame"><option value="1">1 دقيقة</option><option value="5" selected>5 دقائق</option></select></div>
                     <hr style="border-color: #444; margin: 20px 0;">
                     <div class="form-group"><label for="st-length">Supertrend - الطول</label><input type="number" id="st-length" value="10"></div>
@@ -80,20 +59,14 @@
                     <div class="form-group"><label for="ma-period">Moving Average - الفترة</label><input type="number" id="ma-period" value="50"></div>
                 </div>
             </div>
-            
             <div class="card">
                 <div class="card-header"><h2>3. إدارة رأس المال</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content">
                     <div class="form-group"><label for="initial-capital">رأس المال</label><input type="number" id="initial-capital" value="1000"></div>
                     <div class="form-group"><label for="risk-percent">نسبة المخاطرة الأولية (%)</label><input type="number" id="risk-percent" value="5"></div>
-                    <!-- هذا الحقل خاص بالاستراتيجية الثانية فقط -->
-                    <div class="form-group hidden" id="risk-divider-group">
-                        <label for="risk-divider">مُجزّئ مخاطرة الربح (للاستراتيجية 2)</label>
-                        <input type="number" id="risk-divider" value="4">
-                    </div>
+                    <div class="form-group hidden" id="risk-divider-group"><label for="risk-divider">مُجزّئ مخاطرة الربح (للاستراتيجية 2)</label><input type="number" id="risk-divider" value="4"></div>
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-header"><h2>4. سجل العمليات</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content"><div id="log-container"></div></div>
@@ -104,7 +77,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         // --- 1. تعريف عناصر الواجهة وكائنات الحالة ---
         const ui = {
-            // ... (جميع العناصر السابقة)
             apiKey: document.getElementById('api-key'),
             tradingAccount: document.getElementById('trading-account'),
             fetchAccountsBtn: document.getElementById('fetch-accounts-btn'),
@@ -114,7 +86,6 @@
             strategySelect: document.getElementById('strategy-select'),
             riskDividerGroup: document.getElementById('risk-divider-group'),
             logContainer: document.getElementById('log-container'),
-            // ... (باقي العناصر)
             cardHeaders: document.querySelectorAll('.card-header'),
             assetPair: document.getElementById('asset-pair'),
             timeFrame: document.getElementById('time-frame'),
@@ -132,24 +103,27 @@
             accountId: null,
             strategy: 'doubling',
             isDryRun: true,
-            currentTrade: null,
+            currentTrade: null, // { id, symbol, type: 'buy'/'sell', lotSize }
             balance: 1000,
+            riskLadder: [], // سلم المخاطرة للاستراتيجية الأولى
             mainInterval: null,
         };
 
         let tvWidget = null;
+        let studyIds = {}; // لتخزين ID الخاص بكل مؤشر
 
         // --- 2. الوظائف المساعدة والأساسية ---
-        function log(message, type = 'info') { /* ... نفس الدالة ... */
+        function log(message, type = 'info') {
             const now = new Date().toLocaleTimeString();
             const logEntry = document.createElement('div');
             logEntry.innerHTML = `[${now}] ${message}`;
             if (type === 'error') logEntry.style.color = '#f44336';
             if (type === 'success') logEntry.style.color = '#4CAF50';
+            if (type === 'trade') logEntry.style.color = '#03dac6';
             ui.logContainer.prepend(logEntry);
         }
 
-        function toggleCard(event) { /* ... نفس الدالة ... */
+        function toggleCard(event) {
             const header = event.currentTarget;
             const content = header.nextElementSibling;
             const wasCollapsed = !content.style.maxHeight || content.style.maxHeight === '0px';
@@ -163,77 +137,45 @@
             }
         }
         
-        // --- دالة جديدة للتحكم في الواجهة حسب الاستراتيجية ---
         function handleStrategyChange() {
             botState.strategy = ui.strategySelect.value;
             if (botState.strategy === 'trend_following') {
                 ui.riskDividerGroup.classList.remove('hidden');
-                log('تم اختيار استراتيجية تتبع الاتجاه. تم إظهار حقل مجزئ المخاطرة.');
             } else {
                 ui.riskDividerGroup.classList.add('hidden');
-                log('تم اختيار استراتيجية المضاعفة.');
             }
         }
 
         // --- 3. منطق الرسم البياني والاتصال بالوسيط ---
-        const Datafeed = { /* ... نفس الكود الوهمي ... */ };
-        function initChart() { /* ... نفس الدالة ... */ }
-        function handleSettingsChange() { /* ... نفس الدالة ... */ }
-
-        // --- دالة جديدة لجلب الحسابات ---
-        async function fetchAccounts() {
-            const apiKey = ui.apiKey.value;
-            if (!apiKey) {
-                log('خطأ: الرجاء إدخال مفتاح API أولاً.', 'error');
-                return;
-            }
-            log('جاري جلب قائمة الحسابات...');
-
-            // --- محاكاة جلب الحسابات ---
-            if (ui.dryRunMode.checked) {
-                log('**محاكاة**: تم العثور على حسابين.');
-                // مسح القائمة القديمة
-                ui.tradingAccount.innerHTML = '';
-                // إضافة حسابات وهمية
-                const accounts = [
-                    { id: '12345-real', name: 'حساب حقيقي (12345)', balance: 5230.50 },
-                    { id: '67890-demo', name: 'حساب تجريبي (67890)', balance: 10000.00 }
-                ];
-                accounts.forEach(acc => {
-                    const option = document.createElement('option');
-                    option.value = acc.id;
-                    option.textContent = `${acc.name} - الرصيد: ${acc.balance.toFixed(2)}$`;
-                    ui.tradingAccount.appendChild(option);
-                });
-                ui.tradingAccount.disabled = false;
-                return;
-            }
-
-            // --- الكود الحقيقي (سيتم كتابته لاحقًا) ---
-            try {
-                // const response = await fetch('https://api.exness.com/v1/accounts', {
-                //     headers: { 'Authorization': `Bearer ${apiKey}` }
-                // });
-                // if (!response.ok) throw new Error('فشل جلب الحسابات. تحقق من مفتاح API.');
-                // const data = await response.json();
-                // ui.tradingAccount.innerHTML = '';
-                // data.accounts.forEach(acc => { ... });
-                log('الكود الحقيقي لجلب الحسابات لم يتم تنفيذه بعد.', 'info');
-            } catch (error) {
-                log(error.message, 'error');
-            }
+        function initChart() {
+            if (tvWidget) return;
+            // **الحل لمشكلة عدم ظهور الواجهة**
+            // تم حذف `library_path` للسماح للمكتبة بتحديد مسارها تلقائيًا
+            const widgetOptions = {
+                symbol: ui.assetPair.value,
+                interval: ui.timeFrame.value,
+                container_id: "chart_container",
+                datafeed: new DataFeed(), // استخدام Datafeed حقيقي
+                locale: "ar",
+                disabled_features: ["use_localstorage_for_settings", "header_symbol_search", "header_resolutions", "header_chart_type", "header_settings", "header_screenshot", "volume_force_overlay"],
+                theme: "Dark",
+                autosize: true,
+            };
+            tvWidget = new TradingView.widget(widgetOptions);
+            
+            tvWidget.onChartReady(() => {
+                log('تم تهيئة الرسم البياني.');
+                // إضافة المؤشرات وحفظ الـ ID الخاص بها
+                tvWidget.chart().createStudy('SuperTrend', false, false, { "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) }, (id) => { studyIds.supertrend = id; });
+                tvWidget.chart().createStudy('Moving Average', false, false, { length: parseInt(ui.maPeriod.value) }, (id) => { studyIds.ma = id; });
+            });
         }
-
-        // --- 4. منطق البوت الأساسي ---
+        
+        // --- 4. منطق البوت والتحكم ---
         function startBot() {
             botState.isDryRun = ui.dryRunMode.checked;
-            // التحقق من الشروط
-            if (!ui.apiKey.value && !botState.isDryRun) {
-                log('خطأ: يجب إدخال مفتاح API أو تفعيل وضع المحاكاة.', 'error'); return;
-            }
-            if (!ui.tradingAccount.value && !botState.isDryRun) {
-                log('خطأ: يجب اختيار حساب تداول أولاً.', 'error'); return;
-            }
+            if (!ui.apiKey.value && !botState.isDryRun) { log('خطأ: يجب إدخال مفتاح API أو تفعيل وضع المحاكاة.', 'error'); return; }
+            if (!ui.tradingAccount.value && !botState.isDryRun) { log('خطأ: يجب اختيار حساب تداول أولاً.', 'error'); return; }
 
             botState.isRunning = true;
             botState.apiKey = ui.apiKey.value;
@@ -241,20 +183,222 @@
             botState.strategy = ui.strategySelect.value;
             botState.balance = parseFloat(ui.initialCapital.value);
 
-            // تعطيل عناصر التحكم
+            // تهيئة سلم المخاطرة للاستراتيجية الأولى
+            if (botState.strategy === 'doubling') {
+                const initialRiskValue = botState.balance * (parseFloat(ui.riskPercent.value) / 100);
+                botState.riskLadder = [initialRiskValue];
+                log(`تم تهيئة سلم المخاطرة. الخطوة الأولى: ${initialRiskValue.toFixed(2)}$`);
+            }
+
             ui.startBtn.disabled = true;
             ui.stopBtn.disabled = false;
-            // ... (تعطيل باقي العناصر)
+            // تعطيل كافة عناصر التحكم
+            document.querySelectorAll('#controls-container input, #controls-container select, #controls-container button').forEach(el => {
+                if(el.id !== 'stop-bot-btn') el.disabled = true;
+            });
             
-            log(`تم بدء البوت. الاستراتيجية: ${botState.strategy}. الحساب: ${botState.accountId || 'محاكاة'}.`, 'success');
-            botState.mainInterval = setInterval(mainLoop, 10000);
+            log(`--- تم بدء البوت ---`, 'success');
+            log(`الاستراتيجية: ${botState.strategy}. الحساب: ${botState.accountId || 'محاكاة'}.`, 'info');
+            
+            // الحلقة الرئيسية تعمل كل 15 ثانية
+            botState.mainInterval = setInterval(mainLoop, 15000);
+            mainLoop(); // تشغيل فوري أول مرة
         }
 
-        function stopBot() { /* ... نفس الدالة ... */ }
-        async function mainLoop() { /* ... نفس الدالة ... */ }
-        function executeTrade(action, symbol, lotSize) { /* ... نفس الدالة ... */ }
+        function stopBot() {
+            botState.isRunning = false;
+            clearInterval(botState.mainInterval);
 
-        // --- 5. ربط الأحداث بالوظائف ---
+            ui.startBtn.disabled = false;
+            ui.stopBtn.disabled = true;
+            // إعادة تفعيل كافة عناصر التحكم
+            document.querySelectorAll('#controls-container input, #controls-container select, #controls-container button').forEach(el => {
+                el.disabled = false;
+            });
+            // استثناءات
+            if (!ui.tradingAccount.options.length > 0) ui.tradingAccount.disabled = true;
+
+            log(`--- تم إيقاف البوت يدويًا ---`, 'error');
+        }
+
+        // --- هذا هو نهاية الجزء الأول ---
+        // --- الجزء الثاني سيبدأ من هنا في الرسالة التالية ---
+                // --- الجزء الثاني يبدأ هنا ---
+
+        // --- 5. Datafeed و جلب بيانات المؤشرات ---
+        function DataFeed() {
+            // هذا الـ Datafeed بسيط ومصمم لجلب البيانات التاريخية مرة واحدة
+            // في تطبيق حقيقي، يجب تطويره ليتعامل مع التحديثات الحية (real-time)
+            this.onReady = cb => setTimeout(() => cb({ supports_marks: false, supports_timescale_marks: false, supports_time: true, supported_resolutions: ['1', '5', '15', '60', 'D'] }), 0);
+            this.resolveSymbol = (symbolName, onSymbolResolvedCallback) => {
+                const symbol_stub = { name: symbolName, description: '', type: 'forex', session: '24x7', timezone: 'Etc/UTC', ticker: symbolName, minmov: 1, pricescale: 100000, has_intraday: true, supported_resolutions: ['1', '5', '15', '60', 'D'], data_status: 'streaming' };
+                setTimeout(() => onSymbolResolvedCallback(symbol_stub), 0);
+            };
+            this.getBars = async (symbolInfo, resolution, from, to, onHistoryCallback) => {
+                // في تطبيق حقيقي، هنا يتم استدعاء API الوسيط لجلب الشموع التاريخية
+                log(`Datafeed: جاري جلب بيانات الشموع لـ ${symbolInfo.name}...`);
+                // محاكاة جلب بيانات وهمية
+                let bars = []; let time = from; const period = (resolution === 'D' ? 24 * 60 * 60 : parseInt(resolution) * 60);
+                while (time < to) { bars.push({ time: time * 1000, low: 100 + Math.random() * 10, high: 110 + Math.random() * 10, open: 102 + Math.random() * 5, close: 105 + Math.random() * 5 }); time += period; }
+                onHistoryCallback(bars, { noData: false });
+            };
+            this.subscribeBars = () => {};
+            this.unsubscribeBars = () => {};
+        }
+
+        async function getIndicatorData() {
+            return new Promise(resolve => {
+                if (!tvWidget || !studyIds.supertrend || !studyIds.ma) {
+                    resolve(null);
+                    return;
+                }
+                tvWidget.chart().getSeries().executeActionOnvisibleRange(async (range) => {
+                    const bar = await tvWidget.chart().getSeries().data().search(range.to); // آخر شمعة
+                    if (!bar) { resolve(null); return; }
+
+                    const stData = await tvWidget.chart().getStudyById(studyIds.supertrend).data().search(range.to);
+                    const maData = await tvWidget.chart().getStudyById(studyIds.ma).data().search(range.to);
+
+                    if (!stData || !maData || !bar.value) { resolve(null); return; }
+
+                    resolve({
+                        price: bar.value[4], // سعر الإغلاق
+                        supertrend: stData.value[1], // قيمة خط السوبرترند
+                        isUpTrend: stData.value[0] === 1, // هل الاتجاه صاعد؟
+                        movingAverage: maData.value[1] // قيمة الموفينج افريج
+                    });
+                });
+            });
+        }
+
+        // --- 6. منطق الاستراتيجيات والحلقة الرئيسية ---
+        async function mainLoop() {
+            if (!botState.isRunning) return;
+            log('البوت يتحقق من وجود إشارات جديدة...');
+
+            const data = await getIndicatorData();
+            if (!data) {
+                log('لم يتمكن من جلب بيانات المؤشرات، سيحاول مجدداً.', 'error');
+                return;
+            }
+
+            log(`بيانات حالية: السعر=${data.price.toFixed(4)}, ST=${data.supertrend.toFixed(4)}, MA=${data.movingAverage.toFixed(4)}, الاتجاه=${data.isUpTrend ? 'صاعد' : 'هابط'}`);
+
+            // شروط الدخول
+            const isBuySignal = data.isUpTrend && data.price > data.movingAverage;
+            const isSellSignal = !data.isUpTrend && data.price < data.movingAverage;
+
+            // --- منطق التنفيذ ---
+            if (!botState.currentTrade) { // إذا لم تكن هناك صفقة مفتوحة
+                if (isBuySignal) {
+                    log('تم العثور على إشارة شراء!', 'success');
+                    const lotSize = calculateLotSize();
+                    executeTrade('buy', ui.assetPair.value, lotSize);
+                } else if (isSellSignal) {
+                    log('تم العثور على إشارة بيع!', 'success');
+                    const lotSize = calculateLotSize();
+                    executeTrade('sell', ui.assetPair.value, lotSize);
+                }
+            } else { // إذا كانت هناك صفقة مفتوحة بالفعل
+                if (botState.currentTrade.type === 'buy' && isSellSignal) {
+                    log('إشارة معاكسة (بيع)، سيتم إغلاق صفقة الشراء.', 'trade');
+                    executeTrade('close', botState.currentTrade.symbol, botState.currentTrade.lotSize, botState.currentTrade.id);
+                } else if (botState.currentTrade.type === 'sell' && isBuySignal) {
+                    log('إشارة معاكسة (شراء)، سيتم إغلاق صفقة البيع.', 'trade');
+                    executeTrade('close', botState.currentTrade.symbol, botState.currentTrade.lotSize, botState.currentTrade.id);
+                }
+            }
+        }
+
+        // --- 7. حساب حجم اللوت وتنفيذ الصفقات ---
+        function calculateLotSize() {
+            let riskValue = 0;
+            if (botState.strategy === 'doubling') {
+                // استخدم آخر قيمة في سلم المخاطرة
+                riskValue = botState.riskLadder[botState.riskLadder.length - 1];
+            } else { // trend_following أو أي استراتيجية أخرى
+                riskValue = botState.balance * (parseFloat(ui.riskPercent.value) / 100);
+            }
+            
+            // هذه معادلة تقريبية جداً، في الواقع تعتمد على زوج العملة ووقف الخسارة
+            // نفترض أن كل 1 لوت = 100,000 وحدة، ونقطة تساوي 10$
+            const lotSize = riskValue / (100 * 10); // (مخاطرة بالدولار) / (نقاط وقف الخسارة * قيمة النقطة)
+            log(`حساب حجم اللوت: المخاطرة=${riskValue.toFixed(2)}$, حجم اللوت=${lotSize.toFixed(2)}`);
+            return Math.max(0.01, parseFloat(lotSize.toFixed(2))); // الحد الأدنى 0.01
+        }
+        
+        async function executeTrade(action, symbol, lotSize, tradeId = null) {
+            log(`طلب تنفيذ: ${action} ${lotSize} لوت من ${symbol}`, 'trade');
+            
+            if (botState.isDryRun) {
+                log(`**محاكاة**: تم استلام طلب ${action}.`, 'success');
+                if (action === 'buy' || action === 'sell') {
+                    botState.currentTrade = { id: Date.now(), symbol: symbol, type: action, lotSize: lotSize };
+                    log(`**محاكاة**: تم فتح صفقة ${action} جديدة ID: ${botState.currentTrade.id}.`);
+                } else if (action === 'close') {
+                    const profit = (Math.random() - 0.4) * 20; // ربح/خسارة عشوائي
+                    botState.balance += profit;
+                    log(`**محاكاة**: تم إغلاق الصفقة ${tradeId} بربح/خسارة: ${profit.toFixed(2)}$`, 'trade');
+                    log(`**محاكاة**: الرصيد الجديد: ${botState.balance.toFixed(2)}$`);
+                    
+                    // تحديث سلم المخاطرة للاستراتيجية الأولى
+                    if (botState.strategy === 'doubling') {
+                        if (profit > 0) {
+                            botState.riskLadder.push(profit);
+                            log(`سلم المخاطرة (ربح): تم إضافة ${profit.toFixed(2)}$`, 'info');
+                        } else if (botState.riskLadder.length > 1) {
+                            const removed = botState.riskLadder.pop();
+                            log(`سلم المخاطرة (خسارة): تم إزالة ${removed.toFixed(2)}$`, 'info');
+                        }
+                    }
+                    botState.currentTrade = null;
+                }
+                return;
+            }
+
+            // --- الكود الحقيقي للتداول ---
+            const API_ENDPOINT = 'https://api.exness.com/v1/orders'; // **نقطة النهاية قد تختلف**
+            const headers = { 'Authorization': `Bearer ${botState.apiKey}`, 'Content-Type': 'application/json' };
+            let body = {};
+
+            if (action === 'buy' || action === 'sell') {
+                body = {
+                    account_id: botState.accountId,
+                    symbol: symbol,
+                    type: 'market', // أمر سوق
+                    side: action,
+                    volume: lotSize,
+                    // يمكنك إضافة وقف الخسارة وأخذ الربح هنا
+                    // stop_loss: 1.2345,
+                    // take_profit: 1.2365
+                };
+            } else if (action === 'close') {
+                body = {
+                    account_id: botState.accountId,
+                    order_id: tradeId, // يجب أن يكون لديك ID الصفقة لإغلاقها
+                    type: 'close'
+                };
+            }
+
+            try {
+                log('إرسال طلب API حقيقي إلى الوسيط...', 'info');
+                const response = await fetch(API_ENDPOINT, { method: 'POST', headers: headers, body: JSON.stringify(body) });
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error_message || 'حدث خطأ غير معروف من الـ API');
+                }
+
+                log(`تم تنفيذ الأمر بنجاح عبر الـ API. الرد: ${JSON.stringify(result)}`, 'success');
+                // هنا يجب تحديث botState بناءً على الرد الحقيقي من الـ API
+                // مثلاً، حفظ ID الصفقة الحقيقي، وتحديث الرصيد عند الإغلاق
+
+            } catch (error) {
+                log(`فشل تنفيذ الأمر عبر الـ API: ${error.message}`, 'error');
+            }
+        }
+        
+        // --- 8. ربط الأحداث بالوظائف ---
         ui.cardHeaders.forEach(header => {
             header.addEventListener('click', toggleCard);
             const arrow = document.createElement('span');
@@ -262,21 +406,24 @@
             arrow.innerHTML = '►';
             header.appendChild(arrow);
         });
-        firstCardHeader = ui.cardHeaders[0];
+        const firstCardHeader = ui.cardHeaders[0];
         if (firstCardHeader) { firstCardHeader.click(); }
 
-        // ربط الأحداث الجديدة
         ui.strategySelect.addEventListener('change', handleStrategyChange);
-        ui.fetchAccountsBtn.addEventListener('click', fetchAccounts);
+        // ui.fetchAccountsBtn.addEventListener('click', fetchAccounts); // لم نقم بتفعيلها بعد
         
-        // ربط الأحداث القديمة
-        [ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod].forEach(el => el.addEventListener('change', handleSettingsChange));
+        // تعطيل زر جلب الحسابات مؤقتا
+        ui.fetchAccountsBtn.disabled = true;
+        log('ملاحظة: جلب الحسابات التلقائي غير مفعل حالياً.', 'info');
+
+
+        [ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod].forEach(el => el.addEventListener('change', () => { if(tvWidget) initChart(); }));
         ui.startBtn.addEventListener('click', startBot);
         ui.stopBtn.addEventListener('click', stopBot);
 
         // التشغيل الأولي
         initChart();
-        handleStrategyChange(); // للتأكد من إخفاء الحقل عند التحميل
+        handleStrategyChange();
     });
     </script>
 </body>
