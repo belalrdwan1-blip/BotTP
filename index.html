@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محطة التداول (v4.1 - نهائي)</title>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        /* CSS كما هو بدون تغيير */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; }
+        #main-container { display: flex; flex-direction: column; height: 100vh; }
+        #chart_container { height: 50vh; background-color: #1e1e1e; }
+        #controls-container { flex-grow: 1; overflow-y: auto; padding: 8px; border-top: 2px solid #bb86fc; }
+        .card { background-color: #1e1e1e; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); overflow: hidden; }
+        .card-header { background-color: #2a2a2a; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .card-header h2 { margin: 0; font-size: 18px; color: #bb86fc; }
+        .card-header .toggle-arrow { font-size: 24px; transition: transform 0.3s; transform: rotate(-90deg); }
+        .card-content { padding: 20px; border-top: 1px solid #333; max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, padding 0.5s; }
+        .card-content:not(.collapsed) { max-height: 1000px; }
+        .card-header:not(.collapsed) .toggle-arrow { transform: rotate(0deg); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #cfcfcf; }
+        input, select { width: 100%; padding: 10px; background-color: #333; border: 1px solid #555; border-radius: 4px; color: #e0e0e0; box-sizing: border-box; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <div id="chart_container"></div>
+        <div id="controls-container">
+            <div class="card">
+                <div class="card-header collapsed"><h2>الإعدادات العامة</h2><span class="toggle-arrow">►</span></div>
+                <div class="card-content collapsed">
+                    <div class="form-group">
+                        <label for="asset-pair">اختر الزوج</label>
+                        <select id="asset-pair">
+                            <option value="FX:EURUSD" selected>EUR/USD</option>
+                            <option value="OANDA:XAUUSD">XAU/USD (الذهب)</option>
+                            <option value="BITSTAMP:BTCUSD">BTC/USD</option>
+                            <option value="BITSTAMP:ETHUSD">ETH/USD</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="time-frame">الإطار الزمني</label>
+                        <select id="time-frame">
+                            <option value="1">1 دقيقة</option> <!-- **تمت إضافة فريم الدقيقة** -->
+                            <option value="5">5 دقائق</option>
+                            <option value="15" selected>15 دقيقة</option>
+                            <option value="60">1 ساعة</option>
+                            <option value="D">يومي</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header collapsed"><h2>إعدادات المؤشرات</h2><span class="toggle-arrow">►</span></div>
+                <div class="card-content collapsed">
+                    <div class="form-group"><label for="st-length">Supertrend - الطول (Length)</label><input type="number" id="st-length" value="10"></div>
+                    <div class="form-group"><label for="st-factor">Supertrend - المعامل (Factor)</label><input type="number" id="st-factor" value="4"></div>
+                    <div class="form-group"><label for="ma-period">Moving Average - الفترة</label><input type="number" id="ma-period" value="50"></div>
+                </div>
+            </div>
+            <!-- ... باقي البطاقات كما هي ... -->
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var ui = {
+                assetPair: document.getElementById('asset-pair'),
+                timeFrame: document.getElementById('time-frame'),
+                stLength: document.getElementById('st-length'),
+                stFactor: document.getElementById('st-factor'),
+                maPeriod: document.getElementById('ma-period'),
+                cardHeaders: document.querySelectorAll('.card-header')
+            };
+            var tvWidget = null;
+
+            var Datafeed = { // مزود بيانات وهمي كما هو
+                onReady: function(cb) { setTimeout(function() { cb({ supports_marks: false, supports_timescale_marks: false, supports_time: true, supported_resolutions: ['1', '5', '15', '60', 'D'] }); }, 0); },
+                resolveSymbol: function(symbolName, onSymbolResolvedCallback) {
+                    var symbol_stub = { name: symbolName, description: '', type: 'crypto', session: '24x7', timezone: 'Etc/UTC', ticker: symbolName, minmov: 1, pricescale: 100000, has_intraday: true, intraday_multipliers: ['1', '5', '15', '60'], supported_resolutions: ['1', '5', '15', '60', 'D'], volume_precision: 8, data_status: 'streaming' };
+                    setTimeout(function() { onSymbolResolvedCallback(symbol_stub); }, 0);
+                },
+                getBars: function(symbolInfo, resolution, from, to, onHistoryCallback) {
+                    var bars = []; var time = from; var period = parseInt(resolution) * 60; if (resolution === 'D') period = 24 * 60 * 60;
+                    while (time < to) { bars.push({ time: time * 1000, low: Math.random() * 10 + 100, high: Math.random() * 10 + 110, open: Math.random() * 5 + 102, close: Math.random() * 5 + 105 }); time += period; }
+                    onHistoryCallback(bars, { noData: false });
+                },
+                subscribeBars: function() {},
+                unsubscribeBars: function() {}
+            };
+
+            function initChart() {
+                var widgetOptions = {
+                    symbol: ui.assetPair.value,
+                    interval: ui.timeFrame.value,
+                    container_id: "chart_container",
+                    datafeed: Datafeed,
+                    library_path: "charting_library/",
+                    locale: "ar",
+                    disabled_features: ["use_localstorage_for_settings", "header_symbol_search", "header_resolutions", "header_chart_type", "header_settings", "header_screenshot", "volume_force_overlay"],
+                    theme: "Dark",
+                    autosize: true,
+                    studies: [ // إضافة المؤشرات مع الإعدادات الافتراضية
+                        { id: "MASimple@tv-basicstudies", inputs: { length: parseInt(ui.maPeriod.value) } },
+                        { id: "SuperTrend@tv-basicstudies", inputs: { "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) } }
+                    ]
+                };
+                tvWidget = new TradingView.widget(widgetOptions);
+            }
+
+            function handleSettingsChange() {
+                if (!tvWidget) return;
+                
+                // تحديث الرمز والإطار الزمني
+                tvWidget.onChartReady(function() {
+                    tvWidget.chart().setSymbol(ui.assetPair.value, function() {});
+                    tvWidget.chart().setResolution(ui.timeFrame.value, function() {});
+
+                    // تحديث المؤشرات
+                    var studies = tvWidget.chart().getAllStudies();
+                    studies.forEach(function(study) {
+                        if (study.name === 'Moving Average') {
+                            tvWidget.chart().getStudyById(study.id).applyOverrides({ length: parseInt(ui.maPeriod.value) });
+                        }
+                        if (study.name === 'SuperTrend') {
+                            tvWidget.chart().getStudyById(study.id).applyOverrides({ "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) });
+                        }
+                    });
+                });
+            }
+
+            function toggleCard(event) {
+                var header = event.currentTarget;
+                var content = header.nextElementSibling;
+                header.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+            }
+
+            // --- ربط الأحداث ---
+            initChart();
+            ui.cardHeaders.forEach(function(header) { header.addEventListener('click', toggleCard); });
+            
+            // ربط حدث التغيير بدالة تحديث الرسم البياني
+            [ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod].forEach(function(element) {
+                element.addEventListener('change', handleSettingsChange);
+            });
+        });
+    </script>
+</body>
+</html>
