@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محطة التداول (v5.0 - كاملة)</title>
-    <!-- هذا هو الرابط لمكتبة TradingView -->
+    <title>محطة التداول (v5.1 - معززة)</title>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
-        /* CSS الكامل بدون تغيير */
+        /* نفس الـ CSS السابق، مع إضافة بسيطة للأزرار الجديدة */
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #121212; color: #e0e0e0; margin: 0; }
         #main-container { display: flex; flex-direction: column; height: 100vh; }
         #chart_container { height: 50vh; background-color: #1e1e1e; }
@@ -17,163 +16,292 @@
         .card-header h2 { margin: 0; font-size: 18px; color: #bb86fc; }
         .card-header .toggle-arrow { font-size: 24px; transition: transform 0.3s; transform: rotate(-90deg); }
         .card-content { padding: 20px; border-top: 1px solid #333; max-height: 0; padding-top: 0; padding-bottom: 0; overflow: hidden; transition: max-height 0.5s ease-in-out, padding 0.5s; }
-        .card-content:not(.collapsed) { max-height: 1000px; }
-        .card-header:not(.collapsed) .toggle-arrow { transform: rotate(0deg); }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: bold; color: #cfcfcf; }
         input, select { width: 100%; padding: 10px; background-color: #333; border: 1px solid #555; border-radius: 4px; color: #e0e0e0; box-sizing: border-box; }
         .button { padding: 12px 20px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; box-sizing: border-box; transition: background-color 0.3s; }
-        .btn-save { background-color: #03dac6; color: #121212; margin-top: 10px; }
         .btn-start { background-color: #4CAF50; color: white; }
         .btn-stop { background-color: #f44336; color: white; margin-top: 10px; }
         #log-container { background-color: #000; border: 1px solid #444; height: 150px; overflow-y: auto; padding: 10px; font-family: "Courier New", Courier, monospace; font-size: 12px; border-radius: 4px; display: flex; flex-direction: column-reverse; }
-        .hidden { display: none; }
+        /* إضافة لتبديل وضع المحاكاة */
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #03dac6; }
+        input:checked + .slider:before { transform: translateX(26px); }
     </style>
 </head>
 <body>
     <div id="main-container">
         <div id="chart_container"></div>
         <div id="controls-container">
-            <!-- البطاقة الأولى: الإعدادات العامة -->
+            
+            <!-- بطاقة جديدة: الأمان والتحكم -->
+            <div class="card">
+                <div class="card-header"><h2>الأمان والتحكم</h2><span class="toggle-arrow"></span></div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="api-key">مفتاح API الخاص بالوسيط</label>
+                        <input type="password" id="api-key" placeholder="أدخل مفتاح API السري هنا">
+                    </div>
+                    <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="dry-run-mode" style="margin-bottom: 0;">تفعيل وضع المحاكاة (آمن)</label>
+                        <label class="switch">
+                            <input type="checkbox" id="dry-run-mode" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <button id="start-bot-btn" class="button btn-start">بدء التداول الآلي</button>
+                    <button id="stop-bot-btn" class="button btn-stop" disabled>إيقاف التداول الآلي</button>
+                </div>
+            </div>
+
+            <!-- البطاقات الأخرى -->
             <div class="card">
                 <div class="card-header"><h2>الإعدادات العامة</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content">
-                    <div class="form-group"><label for="asset-pair">اختر الزوج</label><select id="asset-pair"><option value="FX:EURUSD" selected>EUR/USD</option><option value="OANDA:XAUUSD">XAU/USD (الذهب)</option><option value="BITSTAMP:BTCUSD">BTC/USD</option><option value="BITSTAMP:ETHUSD">ETH/USD</option></select></div>
-                    <div class="form-group"><label for="time-frame">الإطار الزمني</label><select id="time-frame"><option value="1">1 دقيقة</option><option value="5">5 دقائق</option><option value="15" selected>15 دقيقة</option><option value="60">1 ساعة</option><option value="D">يومي</option></select></div>
+                    <div class="form-group"><label for="asset-pair">اختر الزوج</label><select id="asset-pair"><option value="FX:EURUSD" selected>EUR/USD</option><option value="OANDA:XAUUSD">XAU/USD (الذهب)</option></select></div>
+                    <div class="form-group"><label for="time-frame">الإطار الزمني</label><select id="time-frame"><option value="1">1 دقيقة</option><option value="5" selected>5 دقائق</option></select></div>
                 </div>
             </div>
-            <!-- البطاقة الثانية: إعدادات المؤشرات -->
             <div class="card">
                 <div class="card-header"><h2>إعدادات المؤشرات</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content">
-                    <div class="form-group"><label for="st-length">Supertrend - الطول (Length)</label><input type="number" id="st-length" value="10"></div>
-                    <div class="form-group"><label for="st-factor">Supertrend - المعامل (Factor)</label><input type="number" id="st-factor" value="4"></div>
+                    <div class="form-group"><label for="st-length">Supertrend - الطول</label><input type="number" id="st-length" value="10"></div>
+                    <div class="form-group"><label for="st-factor">Supertrend - المعامل</label><input type="number" id="st-factor" value="4"></div>
                     <div class="form-group"><label for="ma-period">Moving Average - الفترة</label><input type="number" id="ma-period" value="50"></div>
                 </div>
             </div>
-            <!-- **البطاقات المفقودة التي تم إرجاعها** -->
             <div class="card">
                 <div class="card-header"><h2>إدارة رأس المال</h2><span class="toggle-arrow"></span></div>
                 <div class="card-content">
-                    <div class="form-group"><label for="baseline-capital">رأس المال المبدئي</label><input type="number" id="baseline-capital" value="1000"></div>
-                    <div class="form-group"><label for="initial-risk">نسبة المخاطرة الأولية (%)</label><input type="number" id="initial-risk" value="5"></div>
-                    <div class="form-group hidden" id="risk-divider-group"><label for="risk-divider">مُجزّئ مخاطرة الربح</label><input type="number" id="risk-divider" value="4"></div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header"><h2>لوحة التحكم</h2><span class="toggle-arrow"></span></div>
-                <div class="card-content">
-                    <button class="button btn-start">بدء التداول الآلي</button>
-                    <button class="button btn-stop">إيقاف التداول الآلي</button>
+                    <div class="form-group"><label for="initial-capital">رأس المال</label><input type="number" id="initial-capital" value="1000"></div>
+                    <div class="form-group"><label for="risk-percent">نسبة المخاطرة (%)</label><input type="number" id="risk-percent" value="5"></div>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header"><h2>سجل العمليات</h2><span class="toggle-arrow"></span></div>
-                <div class="card-content">
-                    <div id="log-container"></div>
-                </div>
+                <div class="card-content"><div id="log-container"></div></div>
             </div>
         </div>
     </div>
     <script>
-        // --- JavaScript الكامل كما هو بدون تغيير ---
-        document.addEventListener('DOMContentLoaded', function() {
-            var ui = {
-                assetPair: document.getElementById('asset-pair'),
-                timeFrame: document.getElementById('time-frame'),
-                stLength: document.getElementById('st-length'),
-                stFactor: document.getElementById('st-factor'),
-                maPeriod: document.getElementById('ma-period'),
-                cardHeaders: document.querySelectorAll('.card-header')
-            };
-            var tvWidget = null;
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. تعريف عناصر الواجهة وكائنات الحالة ---
+        const ui = {
+            chartContainer: document.getElementById('chart_container'),
+            cardHeaders: document.querySelectorAll('.card-header'),
+            apiKey: document.getElementById('api-key'),
+            dryRunMode: document.getElementById('dry-run-mode'),
+            startBtn: document.getElementById('start-bot-btn'),
+            stopBtn: document.getElementById('stop-bot-btn'),
+            logContainer: document.getElementById('log-container'),
+            assetPair: document.getElementById('asset-pair'),
+            timeFrame: document.getElementById('time-frame'),
+            stLength: document.getElementById('st-length'),
+            stFactor: document.getElementById('st-factor'),
+            maPeriod: document.getElementById('ma-period'),
+            initialCapital: document.getElementById('initial-capital'),
+            riskPercent: document.getElementById('risk-percent'),
+        };
 
-            var Datafeed = {
-                onReady: function(cb) { setTimeout(function() { cb({ supports_marks: false, supports_timescale_marks: false, supports_time: true, supported_resolutions: ['1', '5', '15', '60', 'D'] }); }, 0); },
-                resolveSymbol: function(symbolName, onSymbolResolvedCallback) {
-                    var symbol_stub = { name: symbolName, description: '', type: 'crypto', session: '24x7', timezone: 'Etc/UTC', ticker: symbolName, minmov: 1, pricescale: 100000, has_intraday: true, intraday_multipliers: ['1', '5', '15', '60'], supported_resolutions: ['1', '5', '15', '60', 'D'], volume_precision: 8, data_status: 'streaming' };
-                    setTimeout(function() { onSymbolResolvedCallback(symbol_stub); }, 0);
-                },
-                getBars: function(symbolInfo, resolution, from, to, onHistoryCallback) {
-                    var bars = []; var time = from; var period = parseInt(resolution) * 60; if (resolution === 'D') period = 24 * 60 * 60;
-                    while (time < to) { bars.push({ time: time * 1000, low: Math.random() * 10 + 100, high: Math.random() * 10 + 110, open: Math.random() * 5 + 102, close: Math.random() * 5 + 105 }); time += period; }
-                    onHistoryCallback(bars, { noData: false });
-                },
-                subscribeBars: function() {},
-                unsubscribeBars: function() {}
-            };
+        const botState = {
+            isRunning: false,
+            apiKey: null,
+            isDryRun: true,
+            currentTrade: null, // { id, symbol, type: 'buy'/'sell', openPrice, lotSize }
+            balance: 1000,
+            mainInterval: null, // سيحتوي على مؤقت الحلقة الرئيسية
+        };
 
-            function initChart() {
-                var widgetOptions = {
-                    symbol: ui.assetPair.value,
-                    interval: ui.timeFrame.value,
-                    container_id: "chart_container",
-                    datafeed: Datafeed,
-                    library_path: "/charting_library/", // مسار افتراضي يعمل مع GitHub Pages
-                    locale: "ar",
-                    disabled_features: ["use_localstorage_for_settings", "header_symbol_search", "header_resolutions", "header_chart_type", "header_settings", "header_screenshot", "volume_force_overlay"],
-                    theme: "Dark",
-                    autosize: true,
-                    studies: [
-                        { id: "MASimple@tv-basicstudies", inputs: { length: parseInt(ui.maPeriod.value) } },
-                        { id: "SuperTrend@tv-basicstudies", inputs: { "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) } }
-                    ]
-                };
-                tvWidget = new TradingView.widget(widgetOptions);
-            }
+        let tvWidget = null;
 
-            function handleSettingsChange() {
-                if (!tvWidget) return;
-                
-                tvWidget.onChartReady(function() {
-                    tvWidget.chart().setSymbol(ui.assetPair.value, function() {});
-                    tvWidget.chart().setResolution(ui.timeFrame.value, function() {});
+        // --- 2. الوظائف المساعدة والأساسية ---
 
-                    var studies = tvWidget.chart().getAllStudies();
-                    studies.forEach(function(study) {
-                        if (study.name === 'Moving Average') {
-                            tvWidget.chart().getStudyById(study.id).applyOverrides({ length: parseInt(ui.maPeriod.value) });
-                        }
-                        if (study.name === 'SuperTrend') {
-                            tvWidget.chart().getStudyById(study.id).applyOverrides({ "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) });
-                        }
-                    });
-                });
-            }
+        function log(message, type = 'info') {
+            const now = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${now}] ${message}`;
+            if (type === 'error') logEntry.style.color = '#f44336';
+            if (type === 'success') logEntry.style.color = '#4CAF50';
+            ui.logContainer.prepend(logEntry); // prepend لوضع الرسائل الجديدة في الأعلى
+        }
 
-            function toggleCard(event) {
-                var header = event.currentTarget;
-                var content = header.nextElementSibling;
-                var wasCollapsed = content.style.maxHeight === '0px' || content.style.maxHeight === '';
-                
-                // إغلاق جميع البطاقات الأخرى
-                document.querySelectorAll('.card-content').forEach(function(otherContent) {
-                    otherContent.style.maxHeight = '0px';
-                    otherContent.previousElementSibling.querySelector('.toggle-arrow').style.transform = 'rotate(-90deg)';
-                });
-
-                // فتح/إغلاق البطاقة الحالية
-                if (wasCollapsed) {
-                    content.style.maxHeight = content.scrollHeight + "px";
-                    header.querySelector('.toggle-arrow').style.transform = 'rotate(0deg)';
-                }
-            }
-
-            // --- ربط الأحداث ---
-            initChart();
-            ui.cardHeaders.forEach(function(header) { 
-                header.addEventListener('click', toggleCard);
-                // إضافة السهم
-                var arrow = document.createElement('span');
-                arrow.className = 'toggle-arrow';
-                arrow.innerHTML = '►';
-                header.appendChild(arrow);
-            });
+        function toggleCard(event) {
+            const header = event.currentTarget;
+            const content = header.nextElementSibling;
+            const wasCollapsed = !content.style.maxHeight || content.style.maxHeight === '0px';
             
-            [ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod].forEach(function(element) {
-                element.addEventListener('change', handleSettingsChange);
+            document.querySelectorAll('.card-content').forEach(c => {
+                c.style.maxHeight = '0px';
+                c.previousElementSibling.querySelector('.toggle-arrow').style.transform = 'rotate(-90deg)';
             });
+
+            if (wasCollapsed) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                header.querySelector('.toggle-arrow').style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // --- 3. منطق الرسم البياني (TradingView) ---
+        // ملاحظة: datafeed وهمي كما هو الآن، سيتم استبداله لاحقًا
+        const Datafeed = {
+            onReady: cb => setTimeout(() => cb({ supports_marks: false, supports_timescale_marks: false, supports_time: true, supported_resolutions: ['1', '5', '15', '60', 'D'] }), 0),
+            resolveSymbol: (symbolName, onSymbolResolvedCallback) => {
+                const symbol_stub = { name: symbolName, description: '', type: 'crypto', session: '24x7', timezone: 'Etc/UTC', ticker: symbolName, minmov: 1, pricescale: 100000, has_intraday: true, intraday_multipliers: ['1', '5', '15', '60'], supported_resolutions: ['1', '5', '15', '60', 'D'], volume_precision: 8, data_status: 'streaming' };
+                setTimeout(() => onSymbolResolvedCallback(symbol_stub), 0);
+            },
+            getBars: (symbolInfo, resolution, from, to, onHistoryCallback) => {
+                let bars = []; let time = from; const period = (resolution === 'D' ? 24 * 60 * 60 : parseInt(resolution) * 60);
+                while (time < to) { bars.push({ time: time * 1000, low: 100 + Math.random() * 10, high: 110 + Math.random() * 10, open: 102 + Math.random() * 5, close: 105 + Math.random() * 5 }); time += period; }
+                onHistoryCallback(bars, { noData: false });
+            },
+            subscribeBars: () => {},
+            unsubscribeBars: () => {}
+        };
+
+        function initChart() {
+            if (tvWidget) return;
+            const widgetOptions = {
+                symbol: ui.assetPair.value,
+                interval: ui.timeFrame.value,
+                container_id: "chart_container",
+                datafeed: Datafeed,
+                library_path: "charting_library/",
+                locale: "ar",
+                disabled_features: ["use_localstorage_for_settings", "header_symbol_search", "header_resolutions", "header_chart_type", "header_settings", "header_screenshot", "volume_force_overlay"],
+                theme: "Dark",
+                autosize: true,
+                studies: [
+                    { id: "MASimple@tv-basicstudies", inputs: { length: parseInt(ui.maPeriod.value) } },
+                    { id: "SuperTrend@tv-basicstudies", inputs: { "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) } }
+                ]
+            };
+            tvWidget = new TradingView.widget(widgetOptions);
+            log('تم تهيئة الرسم البياني بنجاح.');
+        }
+
+        function handleSettingsChange() {
+            if (!tvWidget || botState.isRunning) return;
+            tvWidget.onChartReady(() => {
+                tvWidget.chart().setSymbol(ui.assetPair.value, () => {});
+                tvWidget.chart().setResolution(ui.timeFrame.value, () => {});
+                const studies = tvWidget.chart().getAllStudies();
+                studies.forEach(study => {
+                    if (study.name === 'Moving Average') tvWidget.chart().getStudyById(study.id).applyOverrides({ length: parseInt(ui.maPeriod.value) });
+                    if (study.name === 'SuperTrend') tvWidget.chart().getStudyById(study.id).applyOverrides({ "ATR Length": parseInt(ui.stLength.value), Factor: parseFloat(ui.stFactor.value) });
+                });
+            });
+            log('تم تحديث إعدادات الرسم البياني.');
+        }
+
+        // --- 4. منطق البوت الأساسي ---
+
+        function startBot() {
+            // التحقق من الشروط الأساسية
+            if (!ui.apiKey.value && !ui.dryRunMode.checked) {
+                log('خطأ: يجب إدخال مفتاح API أو تفعيل وضع المحاكاة.', 'error');
+                return;
+            }
+            
+            botState.isRunning = true;
+            botState.apiKey = ui.apiKey.value;
+            botState.isDryRun = ui.dryRunMode.checked;
+            botState.balance = parseFloat(ui.initialCapital.value);
+
+            ui.startBtn.disabled = true;
+            ui.stopBtn.disabled = false;
+            [ui.apiKey, ui.dryRunMode, ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod, ui.initialCapital, ui.riskPercent].forEach(el => el.disabled = true);
+
+            log(`تم بدء البوت في وضع ${botState.isDryRun ? 'المحاكاة' : 'التداول الحقيقي'}.`, 'success');
+            log(`الرصيد المبدئي: ${botState.balance}$`);
+
+            // بدء الحلقة الرئيسية
+            // سنجعلها تعمل كل 10 ثواني كمثال
+            botState.mainInterval = setInterval(mainLoop, 10000); 
+        }
+
+        function stopBot() {
+            botState.isRunning = false;
+            clearInterval(botState.mainInterval); // إيقاف الحلقة الرئيسية
+
+            ui.startBtn.disabled = false;
+            ui.stopBtn.disabled = true;
+            [ui.apiKey, ui.dryRunMode, ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod, ui.initialCapital, ui.riskPercent].forEach(el => el.disabled = false);
+            
+            log('تم إيقاف البوت يدويًا.', 'info');
+        }
+
+        async function mainLoop() {
+            if (!botState.isRunning) return;
+            log('البوت يتحقق من وجود إشارات جديدة...');
+
+            // **هنا سيتم وضع المنطق المعقد لاحقًا**
+            // 1. جلب بيانات المؤشرات الحقيقية من الرسم البياني
+            // 2. تطبيق شروط الاستراتيجية
+            // 3. اتخاذ قرار الشراء/البيع
+            // 4. استدعاء executeTrade
+
+            // مثال بسيط للمنطق (سيتم تطويره)
+            const randomSignal = Math.random();
+            if (randomSignal > 0.95 && !botState.currentTrade) {
+                log('تم العثور على إشارة شراء افتراضية!', 'success');
+                executeTrade('buy', ui.assetPair.value, 0.01);
+            } else if (randomSignal < 0.05 && botState.currentTrade && botState.currentTrade.type === 'buy') {
+                log('تم العثور على إشارة إغلاق افتراضية!', 'success');
+                executeTrade('close', ui.assetPair.value, botState.currentTrade.lotSize);
+            }
+        }
+
+        function executeTrade(action, symbol, lotSize) {
+            log(`استدعاء تنفيذ صفقة: ${action} ${lotSize} لوت من ${symbol}`);
+
+            if (botState.isDryRun) {
+                log(`**محاكاة**: تم تنفيذ أمر ${action} بنجاح.`, 'success');
+                // تحديث الحالة في وضع المحاكاة
+                if (action === 'buy') {
+                    botState.currentTrade = { id: Date.now(), symbol: symbol, type: 'buy', lotSize: lotSize };
+                } else if (action === 'close') {
+                    botState.currentTrade = null;
+                    // هنا يمكن إضافة منطق حساب الربح/الخسارة
+                    botState.balance += 10; // ربح افتراضي
+                    log(`**محاكاة**: تم إغلاق الصفقة. الرصيد الجديد: ${botState.balance.toFixed(2)}$`);
+                }
+                return;
+            }
+
+            // **هنا سيتم وضع كود API الحقيقي في المرحلة الثالثة**
+            log('إرسال طلب API حقيقي إلى الوسيط...', 'info');
+            // const endpoint = 'https://api.exness.com/v1/orders';
+            // const headers = { 'Authorization': `Bearer ${botState.apiKey}`, 'Content-Type': 'application/json' };
+            // const body = JSON.stringify({ ... });
+            // fetch(endpoint, { method: 'POST', headers: headers, body: body }) ...
+        }
+
+        // --- 5. ربط الأحداث بالوظائف ---
+        ui.cardHeaders.forEach(header => {
+            header.addEventListener('click', toggleCard);
+            const arrow = document.createElement('span');
+            arrow.className = 'toggle-arrow';
+            arrow.innerHTML = '►';
+            header.appendChild(arrow);
         });
+
+        // فتح البطاقة الأولى افتراضيًا
+        const firstCardHeader = ui.cardHeaders[0];
+        if (firstCardHeader) {
+            firstCardHeader.click();
+        }
+
+        [ui.assetPair, ui.timeFrame, ui.stLength, ui.stFactor, ui.maPeriod].forEach(el => el.addEventListener('change', handleSettingsChange));
+        
+        ui.startBtn.addEventListener('click', startBot);
+        ui.stopBtn.addEventListener('click', stopBot);
+
+        // تهيئة الرسم البياني عند التحميل
+        initChart();
+    });
     </script>
 </body>
 </html>
